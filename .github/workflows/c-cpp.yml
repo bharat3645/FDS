@@ -18,25 +18,27 @@ jobs:
       matrix:
         include:
           - src: ass1.c
-            bin: ass1
+            bin: build/ass1
           - src: ass2.c
-            bin: ass2
+            bin: build/ass2
             stdin: "{[()]}"
           - src: ass3.c
-            bin: ass3
+            bin: build/ass3
           - src: code1
-            bin: code1
+            bin: build/code1
           - src: code2
-            bin: code2
+            bin: build/code2
             stdin: "{[()]}"
           - src: code3
-            bin: code3
+            bin: build/code3
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Compile ${{ matrix.src }}
-        run: gcc -Wall -Wextra -x c "${{ matrix.src }}" -o "${{ matrix.bin }}"
+        run: |
+          mkdir -p build
+          gcc -Wall -Wextra -x c "${{ matrix.src }}" -o "${{ matrix.bin }}"
 
       - name: Run ${{ matrix.bin }}
         run: |
