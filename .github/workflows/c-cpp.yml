@@ -8,16 +8,40 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
+    # This is a loose collection of standalone C assignments -- there's no
+    # configure/Makefile (and never was), so build each source file directly
+    # with gcc and smoke-run the resulting binary.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - src: ass1.c
+            bin: ass1
+          - src: ass2.c
+            bin: ass2
+            stdin: "{[()]}"
+          - src: ass3.c
+            bin: ass3
+          - src: code1
+            bin: code1
+          - src: code2
+            bin: code2
+            stdin: "{[()]}"
+          - src: code3
+            bin: code3
+
     steps:
-    - uses: actions/checkout@v3
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+      - uses: actions/checkout@v4
+
+      - name: Compile ${{ matrix.src }}
+        run: gcc -Wall -Wextra -x c "${{ matrix.src }}" -o "${{ matrix.bin }}"
+
+      - name: Run ${{ matrix.bin }}
+        run: |
+          if [ -n "${{ matrix.stdin }}" ]; then
+            echo "${{ matrix.stdin }}" | "./${{ matrix.bin }}"
+          else
+            "./${{ matrix.bin }}"
+          fi
